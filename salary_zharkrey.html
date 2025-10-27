@@ -1,0 +1,352 @@
+echo "# salaryzharkrey" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/aikiziky/salaryzharkrey.git
+git push -u origin main
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalkulator Gaji Per Jam — Aiki</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --card: #121922;
+      --muted: #8aa0b6;
+      --text: #e9eef5;
+      --accent: #5eead4; /* aqua */
+      --accent-2: #a78bfa; /* purple */
+      --danger: #f87171;
+      --ok: #34d399;
+      --ring: 0 0 0 3px rgba(94, 234, 212, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(90rem 90rem at 10% -10%, #0f172a 0, var(--bg) 35%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 16px; }
+
+    .title {
+      font-weight: 800; font-size: clamp(24px, 3.2vw, 40px);
+      letter-spacing: 0.2px; margin: 0 0 18px; display: flex; align-items: center; gap: 12px;
+    }
+    .title .logo {
+      width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0b0f14; font-weight: 900; font-size: 22px; box-shadow: 0 10px 30px rgba(167,139,250,.25);
+    }
+    .subtitle { color: var(--muted); margin: 0 0 28px; font-size: 14px; }
+
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card {
+      grid-column: span 12; background: linear-gradient(180deg, #121922, #0f1620);
+      border: 1px solid rgba(148,163,184,.16); border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(2,6,23,.45);
+    }
+
+    @media (min-width: 900px) {
+      .card.form { grid-column: span 7; }
+      .card.result { grid-column: span 5; }
+    }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin: 8px 0 6px; }
+    input, select, button { font: inherit; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .input {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(148,163,184,.18);
+      background: #0c131b; color: var(--text); outline: none; transition: box-shadow .2s, border-color .2s, transform .05s;
+    }
+    .input:focus { border-color: var(--accent); box-shadow: var(--ring); }
+    .input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(248,113,113,.2); }
+
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .btn {
+      padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(148,163,184,.18);
+      background: linear-gradient(180deg, #0e1620, #0b121a); color: var(--text); cursor: pointer; 
+      transition: transform .05s ease, box-shadow .2s ease, border-color .2s ease; 
+    }
+    .btn:hover { border-color: var(--accent); box-shadow: var(--ring); }
+    .btn:active { transform: translateY(1px); }
+
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #051016; border-color: transparent; font-weight: 700; }
+    .btn.danger { border-color: rgba(248,113,113,.35); color: #fecaca; }
+
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+    .metric { background: #0c131b; border: 1px solid rgba(148,163,184,.16); border-radius: 12px; padding: 14px; }
+    .metric h3 { margin: 0; font-size: 12px; color: var(--muted); font-weight: 600; }
+    .metric p { margin: 8px 0 0; font-size: 22px; font-weight: 800; letter-spacing: .2px; }
+
+    .table-wrap { margin-top: 18px; overflow: auto; border-radius: 12px; border: 1px solid rgba(148,163,184,.18); }
+    table { width: 100%; border-collapse: collapse; background: #0c131b; }
+    th, td { padding: 12px; border-bottom: 1px solid rgba(148,163,184,.12); text-align: left; }
+    th { position: sticky; top: 0; background: #0e1620; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    tfoot td { font-weight: 800; }
+
+    .note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .ok { color: var(--ok); }
+    .err { color: var(--danger); }
+    .right { text-align: right; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title"><span class="logo">Z</span>Kalkulator Salary Zharkrey</h1>
+    <p class="subtitle">Rumus: <span class="mono">(Jam Pulang − Jam Masuk) × Fee/Jam</span></p>
+
+    <div class="grid">
+      <!-- FORM CARD -->
+      <section class="card form">
+        <form id="payForm" onsubmit="event.preventDefault(); addRow();">
+          <div class="row">
+            <div>
+              <label for="nama">Nama Karyawan</label>
+              <input id="nama" class="input" type="text" placeholder="cth: Aiki" value="Aiki" required />
+            </div>
+            <div>
+              <label for="tanggal">Tanggal</label>
+              <input id="tanggal" class="input" type="date" required />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="jamMasuk">Jam Masuk</label>
+              <input id="jamMasuk" class="input" type="time" value="09:00" required />
+            </div>
+            <div>
+              <label for="jamPulang">Jam Pulang</label>
+              <input id="jamPulang" class="input" type="time" value="17:00" required />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="fee">Fee per Jam (IDR)</label>
+              <input id="fee" class="input" type="text" inputmode="decimal" placeholder="cth: 25.000" value="25000" />
+            </div>
+            <div>
+              <label for="breakMenit">Istirahat (menit) — opsional</label>
+              <input id="breakMenit" class="input" type="number" min="0" step="1" placeholder="cth: 60" />
+            </div>
+          </div>
+
+          <div class="btns">
+            <button type="button" class="btn" onclick="previewCalc()">Hitung</button>
+            <button type="submit" class="btn primary">Tambah ke Tabel</button>
+            <button type="button" class="btn danger" onclick="resetForm()">Reset</button>
+          </div>
+          <p class="note">Tips: isi fee dengan angka saja. Format rupiah otomatis saat ditampilkan.</p>
+        </form>
+      </section>
+
+      <!-- RESULT CARD -->
+      <section class="card result">
+        <h2 style="margin:0 0 6px;font-size:18px">Ringkasan Perhitungan</h2>
+        <div class="result-grid">
+          <div class="metric">
+            <h3>Lama Kerja (jam)</h3>
+            <p id="mHours">0</p>
+          </div>
+          <div class="metric">
+            <h3>Fee/Jam</h3>
+            <p id="mRate">Rp 0</p>
+          </div>
+          <div class="metric">
+            <h3>Potong Istirahat</h3>
+            <p id="mBreak">0 menit</p>
+          </div>
+          <div class="metric">
+            <h3>Total Gaji (Bruto)</h3>
+            <p id="mTotal">Rp 0</p>
+          </div>
+        </div>
+        <p id="status" class="note" aria-live="polite"></p>
+      </section>
+    </div>
+
+    <!-- TABLE -->
+    <section class="card" style="margin-top:16px">
+      <div class="table-wrap">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Nama</th>
+              <th class="right">Jam Masuk</th>
+              <th class="right">Jam Pulang</th>
+              <th class="right">Istirahat</th>
+              <th class="right">Jam Kerja</th>
+              <th class="right">Fee/Jam</th>
+              <th class="right">Total</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="7" class="right">Grand Total</td>
+              <td class="right" id="grandTotal">Rp 0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="note">Catatan: Kalkulasi jam lintas hari didukung (misal 22:00 → 06:00 dianggap 8 jam).</p>
+    </section>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+
+    const el = (id) => document.getElementById(id);
+    const fmtIDR = (n) =>
+      new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+
+    // Parsing fee: ambil angka saja (contoh: "25.000" -> 25000)
+    function parseRate(val) {
+      const onlyDigits = String(val || '').replace(/[^0-9]/g, '');
+      const num = parseInt(onlyDigits || '0', 10);
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    function parseTimeToMinutes(hhmm) {
+      const [h, m] = String(hhmm || '').split(':').map(Number);
+      if (Number.isInteger(h) && Number.isInteger(m) && h >= 0 && h < 24 && m >= 0 && m < 60) {
+        return h * 60 + m;
+      }
+      return NaN;
+    }
+
+    function calcHours(jamMasuk, jamPulang, breakMin) {
+      const inMin = parseTimeToMinutes(jamMasuk);
+      const outMin = parseTimeToMinutes(jamPulang);
+      if (Number.isNaN(inMin) || Number.isNaN(outMin)) {
+        return { hours: 0, ok: false, msg: 'Format jam tidak valid.' };
+      }
+      let dur = outMin - inMin;
+      if (dur < 0) dur += 24 * 60;            // melewati tengah malam
+      dur = Math.max(0, dur - (breakMin || 0));
+      const hours = +(dur / 60).toFixed(2);
+      return { hours, ok: true, msg: 'Siap! Perhitungan sukses.' };
+    }
+
+    function setStatus(ok, msg) {
+      const s = el('status');
+      s.textContent = msg;
+      s.className = 'note ' + (ok ? 'ok' : 'err');
+    }
+
+    function previewCalc() {
+      const rate = parseRate(el('fee').value);
+      const brk = Math.max(0, parseInt(el('breakMenit').value || '0', 10));
+      const { hours, ok, msg } = calcHours(el('jamMasuk').value, el('jamPulang').value, brk);
+      const total = Math.round(hours * rate);
+
+      el('mHours').textContent = hours.toFixed(2);
+      el('mRate').textContent = fmtIDR(rate);
+      el('mBreak').textContent = `${brk} menit`;
+      el('mTotal').textContent = fmtIDR(total);
+
+      setStatus(ok, msg);
+
+      // validasi ringan
+      el('fee').classList.toggle('invalid', rate <= 0);
+      el('jamMasuk').classList.toggle('invalid', Number.isNaN(parseTimeToMinutes(el('jamMasuk').value)));
+      el('jamPulang').classList.toggle('invalid', Number.isNaN(parseTimeToMinutes(el('jamPulang').value)));
+      return { hours, rate, brk, total };
+    }
+
+    function crossMidnightBadge(inT, outT) {
+      const a = parseTimeToMinutes(inT);
+      const b = parseTimeToMinutes(outT);
+      return b < a ? ' <span class="note">(lewat 00:00)</span>' : '';
+    }
+
+    function recomputeGrandTotal() {
+      let sum = 0;
+      for (const row of el('tbl').querySelectorAll('tbody tr')) {
+        const td = row.children[7]; // kolom Total
+        const num = parseInt(td.textContent.replace(/[^0-9]/g, ''), 10) || 0;
+        sum += num;
+      }
+      el('grandTotal').textContent = fmtIDR(sum);
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // === Expose untuk onclick di HTML ===
+    window.previewCalc = previewCalc;
+    window.resetForm = function resetForm() {
+      el('payForm').reset();
+      el('nama').value = 'Aiki';
+      el('jamMasuk').value = '09:00';
+      el('jamPulang').value = '17:00';
+      previewCalc();
+    };
+    window.addRow = function addRow() {
+      const name = el('nama').value.trim();
+      const tanggal = el('tanggal').value;
+      const masuk = el('jamMasuk').value;
+      const pulang = el('jamPulang').value;
+      const brk = Math.max(0, parseInt(el('breakMenit').value || '0', 10));
+      const rate = parseRate(el('fee').value);
+
+      if (!name || !tanggal || !masuk || !pulang || rate <= 0) {
+        previewCalc();
+        setStatus(false, 'Lengkapi data dan pastikan fee > 0.');
+        return;
+      }
+
+      const { hours } = calcHours(masuk, pulang, brk);
+      const total = Math.round(hours * rate);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${tanggal}</td>
+        <td>${escapeHtml(name)}</td>
+        <td class="right">${masuk}</td>
+        <td class="right">${pulang}${crossMidnightBadge(masuk, pulang)}</td>
+        <td class="right">${brk} mnt</td>
+        <td class="right">${hours.toFixed(2)}</td>
+        <td class="right">${fmtIDR(rate)}</td>
+        <td class="right">${fmtIDR(total)}</td>
+        <td><button class="btn danger" onclick="this.closest('tr').remove();(${recomputeGrandTotal.toString()})();">Hapus</button></td>
+      `;
+      el('tbl').querySelector('tbody').appendChild(tr);
+      recomputeGrandTotal();
+      previewCalc();
+      setStatus(true, 'Baris ditambahkan.');
+    };
+
+    // Auto-preview on input changes
+    for (const id of ['nama', 'tanggal', 'jamMasuk', 'jamPulang', 'fee', 'breakMenit']) {
+      const node = el(id);
+      if (node) node.addEventListener('input', previewCalc);
+    }
+
+    // Init: set tanggal hari ini + preview awal
+    try {
+      const today = new Date();
+      el('tanggal').value = today.toISOString().slice(0, 10);
+      previewCalc();
+    } catch (e) {
+      setStatus(false, 'Terjadi error inisialisasi: ' + e.message);
+      console.error(e);
+    }
+  });
+</script>
